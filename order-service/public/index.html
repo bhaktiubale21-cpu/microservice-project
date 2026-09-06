@@ -3,235 +3,189 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NEXUS - Enterprise Microservices Hub</title>
+  <title>NEXUS - Professional Operations Hub</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-slate-950 font-sans text-slate-200 antialiased flex h-screen overflow-hidden">
 
-  <!-- Left Sidebar Navigation -->
+  <!-- Sidebar Section Navigation -->
   <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between shrink-0">
     <div>
-      <!-- Brand Logo -->
       <div class="p-5 border-b border-slate-800 flex items-center space-x-3">
         <div class="p-2.5 bg-indigo-600 text-white rounded-xl shadow-lg shadow-indigo-600/30">
-          <i class="fa-solid fa-cubes-stacked text-lg"></i>
+          <i class="fa-solid fa-server text-lg"></i>
         </div>
         <div>
           <h1 class="font-bold text-white text-base tracking-wide">NEXUS HUB</h1>
-          <span class="text-[10px] text-indigo-400 font-semibold uppercase tracking-wider">Event Architecture</span>
+          <span class="text-[10px] text-indigo-400 font-bold uppercase tracking-wider">v2.4 Enterprise</span>
         </div>
       </div>
 
-      <!-- Navigation Links -->
+      <!-- Section Selectors -->
       <nav class="p-3 space-y-1 text-xs font-semibold mt-2">
-        <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg bg-indigo-600 text-white shadow-md shadow-indigo-600/20">
-          <i class="fa-solid fa-chart-pie w-5 text-center"></i><span>Analytics Hub</span>
+        <button onclick="selectSection('operations')" id="btn-operations" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg bg-indigo-600 text-white shadow-md shadow-indigo-600/20">
+          <i class="fa-solid fa-sliders w-5 text-center"></i><span>Operations Control</span>
         </button>
-        <button onclick="switchTab('orders')" id="nav-orders" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition">
-          <i class="fa-solid fa-cart-flatbed w-5 text-center"></i><span>Order Dispatch</span>
+        <button onclick="selectSection('telemetry')" id="btn-telemetry" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition">
+          <i class="fa-solid fa-diagram-project w-5 text-center"></i><span>Broker Telemetry</span>
         </button>
-        <button onclick="switchTab('inventory')" id="nav-inventory" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition">
-          <i class="fa-solid fa-warehouse w-5 text-center"></i><span>Smart Inventory</span>
+        <button onclick="selectSection('logs')" id="btn-logs" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition">
+          <i class="fa-solid fa-list-check w-5 text-center"></i><span>System Stream Logs</span>
         </button>
-        <button onclick="switchTab('customers')" id="nav-customers" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition">
-          <i class="fa-solid fa-user-gear w-5 text-center"></i><span>Client Ledger</span>
-        </button>
-        <button onclick="switchTab('deliveries')" id="nav-deliveries" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition">
-          <i class="fa-solid fa-truck-ramp-box w-5 text-center"></i><span>Fleet Deliveries</span>
+        <button onclick="selectSection('settings')" id="btn-settings" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition">
+          <i class="fa-solid fa-gears w-5 text-center"></i><span>Environment Config</span>
         </button>
       </nav>
     </div>
 
-    <!-- User & System Footer -->
+    <!-- Active Session Info -->
     <div class="p-4 border-t border-slate-800 bg-slate-900/50 flex items-center justify-between text-xs">
       <div class="flex items-center space-x-2">
         <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
         <span class="text-slate-300 font-bold">admin</span>
       </div>
-      <a href="/logout" class="text-xs text-slate-500 hover:text-rose-400 transition" title="Logout">
+      <a href="/logout" class="text-slate-500 hover:text-rose-400 transition" title="Logout">
         <i class="fa-solid fa-right-from-bracket"></i>
       </a>
     </div>
   </aside>
 
-  <!-- Main Content Area -->
+  <!-- Main View Area -->
   <main class="flex-1 flex flex-col overflow-y-auto bg-slate-950">
     
-    <!-- Top Header -->
+    <!-- Header -->
     <header class="bg-slate-900/80 backdrop-blur border-b border-slate-800 px-8 py-4 flex items-center justify-between sticky top-0 z-10">
       <div>
-        <h2 id="page-title" class="text-xl font-bold text-white tracking-tight">System Operations Dashboard</h2>
-        <p id="page-subtitle" class="text-xs text-slate-400 mt-0.5">Real-time asynchronous microservice telemetry</p>
+        <h2 id="section-title" class="text-xl font-bold text-white tracking-tight">Operations Control Terminal</h2>
+        <p id="section-subtitle" class="text-xs text-slate-400 mt-0.5">Dispatch order payloads directly through RabbitMQ exchange</p>
       </div>
-      <button onclick="switchTab('orders')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-xs font-semibold flex items-center space-x-2 shadow-lg shadow-indigo-600/30 transition">
-        <i class="fa-solid fa-paper-plane"></i><span>Dispatch Event</span>
-      </button>
+      <div class="flex items-center space-x-2 bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800 text-xs font-mono">
+        <span class="text-slate-400">STATUS:</span>
+        <span class="text-emerald-400 font-bold">ONLINE</span>
+      </div>
     </header>
 
-    <div class="p-8 space-y-6">
+    <div class="p-8">
 
-      <!-- VIEW 1: DASHBOARD -->
-      <div id="view-dashboard" class="space-y-6">
+      <!-- SECTION 1: OPERATIONS CONTROL -->
+      <div id="section-operations-view" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        <!-- Summary Stat Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div class="bg-slate-900/60 p-5 rounded-xl border border-slate-800 flex items-center justify-between">
-            <div>
-              <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Total Orders</span>
-              <div id="stat-orders" class="text-2xl font-bold text-white mt-1">0</div>
-            </div>
-            <div class="p-3 bg-indigo-500/10 text-indigo-400 rounded-lg"><i class="fa-solid fa-box text-xl"></i></div>
-          </div>
-
-          <div class="bg-slate-900/60 p-5 rounded-xl border border-slate-800 flex items-center justify-between">
-            <div>
-              <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Gross Volume</span>
-              <div id="stat-revenue" class="text-2xl font-bold text-emerald-400 mt-1">$0.00</div>
-            </div>
-            <div class="p-3 bg-emerald-500/10 text-emerald-400 rounded-lg"><i class="fa-solid fa-dollar-sign text-xl"></i></div>
-          </div>
-
-          <div class="bg-slate-900/60 p-5 rounded-xl border border-slate-800 flex items-center justify-between">
-            <div>
-              <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Broker Engine</span>
-              <div class="text-xl font-bold text-sky-400 mt-1">RabbitMQ</div>
-            </div>
-            <div class="p-3 bg-sky-500/10 text-sky-400 rounded-lg"><i class="fa-solid fa-network-wired text-xl"></i></div>
-          </div>
-
-          <div class="bg-slate-900/60 p-5 rounded-xl border border-slate-800 flex items-center justify-between">
-            <div>
-              <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Event Latency</span>
-              <div class="text-xl font-bold text-purple-400 mt-1">&lt; 12 ms</div>
-            </div>
-            <div class="p-3 bg-purple-500/10 text-purple-400 rounded-lg"><i class="fa-solid fa-bolt text-xl"></i></div>
-          </div>
-        </div>
-
-        <!-- Recent Dispatched Orders Ledger -->
-        <div class="bg-slate-900/60 rounded-xl border border-slate-800 overflow-hidden shadow-xl">
-          <div class="px-6 py-4 border-b border-slate-800 font-bold text-xs text-slate-300 uppercase tracking-wider flex justify-between items-center">
-            <span>Live Order Event Stream</span>
-            <span class="text-[10px] text-emerald-400 font-mono">AMQP Listening...</span>
-          </div>
-          <table class="w-full text-left text-xs">
-            <thead class="bg-slate-950 border-b border-slate-800 text-slate-400 uppercase text-[10px] tracking-wider">
-              <tr>
-                <th class="px-6 py-3">Tracking ID</th>
-                <th class="px-6 py-3">Client</th>
-                <th class="px-6 py-3">Cargo Description</th>
-                <th class="px-6 py-3">Value</th>
-                <th class="px-6 py-3">Microservice Pipeline</th>
-              </tr>
-            </thead>
-            <tbody id="dashboard-orders" class="divide-y divide-slate-800/60 font-mono text-slate-300">
-              <tr>
-                <td colspan="5" class="px-6 py-8 text-center text-slate-500 font-sans">No events processed yet. Submit an order to trigger the pipeline!</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-      </div>
-
-      <!-- VIEW 2: ORDER DISPATCH FORM -->
-      <div id="view-orders" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        <div class="lg:col-span-2 bg-slate-900/60 p-6 rounded-xl border border-slate-800 shadow-xl space-y-4">
-          <h3 class="font-bold text-sm text-white border-b border-slate-800 pb-3">Create New Order Payload</h3>
+        <!-- Input Form -->
+        <div class="bg-slate-900/60 p-6 rounded-xl border border-slate-800 shadow-xl space-y-4">
+          <h3 class="font-bold text-xs uppercase tracking-wider text-indigo-400 border-b border-slate-800 pb-3">Publish Event Payload</h3>
           
           <form id="orderForm" class="space-y-4">
             <div>
-              <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Client Name</label>
-              <input type="text" id="client" required value="Enterprise Corp" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-white outline-none focus:border-indigo-500">
+              <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Customer Identifier</label>
+              <input type="text" id="client" required value="Acme Logistics Corp" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-white outline-none focus:border-indigo-500">
             </div>
             <div>
-              <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Item Specifications</label>
-              <input type="text" id="item" required value="Server Rack Chassis X1" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-white outline-none focus:border-indigo-500">
+              <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Cargo Item Specification</label>
+              <input type="text" id="item" required value="Industrial Router Node X" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-white outline-none focus:border-indigo-500">
             </div>
             <div>
-              <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Total Amount ($ USD)</label>
-              <input type="number" id="amount" required value="2400" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-white outline-none focus:border-indigo-500">
+              <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Total Valuation ($ USD)</label>
+              <input type="number" id="amount" required value="1250" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-white outline-none focus:border-indigo-500">
             </div>
             <button type="submit" id="submitBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-lg text-xs transition shadow-lg shadow-indigo-600/30 flex items-center justify-center space-x-2">
-              <i class="fa-solid fa-paper-plane"></i><span>Publish Event to RabbitMQ</span>
+              <i class="fa-solid fa-paper-plane"></i><span>Emit to Broker Queue</span>
             </button>
           </form>
         </div>
 
-        <!-- JSON Output Panel -->
-        <div class="bg-slate-950 p-6 rounded-xl border border-slate-800 shadow-xl flex flex-col justify-between">
+        <!-- Terminal Output Log -->
+        <div class="lg:col-span-2 bg-slate-950 p-6 rounded-xl border border-slate-800 shadow-xl flex flex-col justify-between font-mono">
           <div>
-            <span class="text-xs font-mono uppercase text-emerald-400 font-bold flex items-center gap-2">
-              <i class="fa-solid fa-terminal"></i> Service Response Payload
-            </span>
-            <pre id="consoleLog" class="mt-4 font-mono text-xs text-slate-400 overflow-x-auto whitespace-pre-wrap">// Awaiting HTTP POST /orders request...</pre>
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+              <span class="text-xs uppercase text-slate-400 font-bold flex items-center gap-2">
+                <i class="fa-solid fa-terminal text-indigo-400"></i> Event Response Feed
+              </span>
+              <span class="text-[10px] text-emerald-400">202 OK Listening...</span>
+            </div>
+            <pre id="consoleLog" class="mt-4 text-xs text-slate-400 overflow-x-auto whitespace-pre-wrap">// Ready to receive order payload events...</pre>
           </div>
         </div>
 
       </div>
 
-      <!-- VIEW 3: INVENTORY -->
-      <div id="view-inventory" class="hidden bg-slate-900/60 p-6 rounded-xl border border-slate-800">
-        <h3 class="font-bold text-sm text-white mb-1">Smart Warehouse Inventory</h3>
-        <p class="text-xs text-slate-400">Inventory levels managed by internal message consumer workers.</p>
-        <div class="mt-6 p-12 border border-dashed border-slate-800 rounded-xl text-center text-xs text-slate-500">Inventory state synced via RabbitMQ queues.</div>
+      <!-- SECTION 2: BROKER TELEMETRY -->
+      <div id="section-telemetry-view" class="hidden space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-slate-900/60 p-5 rounded-xl border border-slate-800">
+            <span class="text-[10px] font-bold text-slate-400 uppercase">Message Broker</span>
+            <div class="text-xl font-bold text-indigo-400 mt-1">RabbitMQ v3.12</div>
+          </div>
+          <div class="bg-slate-900/60 p-5 rounded-xl border border-slate-800">
+            <span class="text-[10px] font-bold text-slate-400 uppercase">Target Queue</span>
+            <div class="text-xl font-bold text-emerald-400 mt-1">order_created</div>
+          </div>
+          <div class="bg-slate-900/60 p-5 rounded-xl border border-slate-800">
+            <span class="text-[10px] font-bold text-slate-400 uppercase">Network Protocol</span>
+            <div class="text-xl font-bold text-sky-400 mt-1">AMQP 0-9-1</div>
+          </div>
+        </div>
       </div>
 
-      <!-- VIEW 4: CLIENT LEDGER -->
-      <div id="view-customers" class="hidden bg-slate-900/60 p-6 rounded-xl border border-slate-800">
-        <h3 class="font-bold text-sm text-white mb-1">Client Management Ledger</h3>
-        <p class="text-xs text-slate-400">Customer account status and messaging updates.</p>
-        <div class="mt-6 p-12 border border-dashed border-slate-800 rounded-xl text-center text-xs text-slate-500">Client notifications automatically sent by Notification Service.</div>
+      <!-- SECTION 3: SYSTEM STREAM LOGS -->
+      <div id="section-logs-view" class="hidden bg-slate-900/60 rounded-xl border border-slate-800 overflow-hidden">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-950 border-b border-slate-800 text-slate-400 uppercase text-[10px] tracking-wider">
+            <tr>
+              <th class="px-6 py-3">Tracking ID</th>
+              <th class="px-6 py-3">Customer</th>
+              <th class="px-6 py-3">Item</th>
+              <th class="px-6 py-3">Valuation</th>
+              <th class="px-6 py-3">Pipeline Status</th>
+            </tr>
+          </thead>
+          <tbody id="logsTable" class="divide-y divide-slate-800/60 font-mono text-slate-300">
+            <tr>
+              <td colspan="5" class="px-6 py-8 text-center text-slate-500 font-sans">No records processed during this active session.</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
-      <!-- VIEW 5: FLEET DELIVERIES -->
-      <div id="view-deliveries" class="hidden bg-slate-900/60 p-6 rounded-xl border border-slate-800">
-        <h3 class="font-bold text-sm text-white mb-1">Fleet Logistics & Dispatch</h3>
-        <p class="text-xs text-slate-400">Track paid orders dispatched to delivery routes.</p>
-        <div class="mt-6 p-12 border border-dashed border-slate-800 rounded-xl text-center text-xs text-slate-500">No active dispatch routes in queue.</div>
+      <!-- SECTION 4: ENVIRONMENT CONFIG -->
+      <div id="section-settings-view" class="hidden bg-slate-900/60 p-6 rounded-xl border border-slate-800 space-y-4 font-mono text-xs text-slate-300">
+        <div><span class="text-slate-500">CONTAINER_NAME:</span> order-service</div>
+        <div><span class="text-slate-500">EXPOSED_PORT:</span> 3001</div>
+        <div><span class="text-slate-500">RABBITMQ_URL:</span> amqp://guest:guest@rabbitmq:5672</div>
       </div>
 
     </div>
   </main>
 
   <script>
-    let orderCount = 0;
-    let totalRev = 0;
+    let logCount = 0;
 
-    function switchTab(tab) {
-      const views = ['dashboard', 'orders', 'inventory', 'customers', 'deliveries'];
-      views.forEach(v => {
-        document.getElementById(`view-${v}`).classList.add('hidden');
-        const navBtn = document.getElementById(`nav-${v}`);
-        if(navBtn) {
-          navBtn.className = "w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition";
-        }
+    function selectSection(section) {
+      const sections = ['operations', 'telemetry', 'logs', 'settings'];
+      sections.forEach(s => {
+        document.getElementById(`section-${s}-view`).classList.add('hidden');
+        document.getElementById(`btn-${s}`).className = "w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition";
       });
 
-      document.getElementById(`view-${tab}`).classList.remove('hidden');
-      const activeBtn = document.getElementById(`nav-${tab}`);
-      if(activeBtn) {
-        activeBtn.className = "w-full flex items-center space-x-3 px-4 py-3 rounded-lg bg-indigo-600 text-white shadow-md shadow-indigo-600/20";
-      }
+      document.getElementById(`section-${section}-view`).classList.remove('hidden');
+      document.getElementById(`btn-${section}`).className = "w-full flex items-center space-x-3 px-4 py-3 rounded-lg bg-indigo-600 text-white shadow-md shadow-indigo-600/20";
 
-      const titles = {
-        dashboard: ["System Operations Dashboard", "Real-time asynchronous microservice telemetry"],
-        orders: ["Order Dispatch Panel", "Construct and emit custom events to RabbitMQ"],
-        inventory: ["Smart Warehouse Inventory", "Inventory levels managed by internal message consumer workers"],
-        customers: ["Client Management Ledger", "Customer account status and messaging updates"],
-        deliveries: ["Fleet Logistics & Dispatch", "Track paid orders dispatched to delivery routes"]
+      const headers = {
+        operations: ["Operations Control Terminal", "Dispatch order payloads directly through RabbitMQ exchange"],
+        telemetry: ["Broker Infrastructure Telemetry", "Live state of underlying message queuing transport"],
+        logs: ["System Stream Logs", "Full historical event pipeline audit trail"],
+        settings: ["Environment Config", "Microservice container configuration details"]
       };
-      document.getElementById('page-title').innerText = titles[tab][0];
-      document.getElementById('page-subtitle').innerText = titles[tab][1];
+
+      document.getElementById('section-title').innerText = headers[section][0];
+      document.getElementById('section-subtitle').innerText = headers[section][1];
     }
 
     document.getElementById('orderForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const submitBtn = document.getElementById('submitBtn');
       submitBtn.disabled = true;
-      submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Processing...`;
+      submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Dispatching...`;
 
       const payload = {
         customer: document.getElementById('client').value,
@@ -246,17 +200,13 @@
           body: JSON.stringify(payload)
         });
         const data = await res.json();
-        
+
         document.getElementById('consoleLog').innerText = JSON.stringify(data, null, 2);
 
         if (res.ok && data.order) {
-          orderCount++;
-          totalRev += data.order.amount;
-          document.getElementById('stat-orders').innerText = orderCount;
-          document.getElementById('stat-revenue').innerText = `$${totalRev.toFixed(2)}`;
-
-          const tbody = document.getElementById('dashboard-orders');
-          if (orderCount === 1) tbody.innerHTML = '';
+          logCount++;
+          const tbody = document.getElementById('logsTable');
+          if (logCount === 1) tbody.innerHTML = '';
 
           const tr = document.createElement('tr');
           tr.className = "hover:bg-slate-800/40 transition";
@@ -265,7 +215,7 @@
             <td class="px-6 py-4 font-semibold text-slate-200">${data.order.customer}</td>
             <td class="px-6 py-4 text-slate-400">${data.order.item}</td>
             <td class="px-6 py-4 font-bold text-emerald-400">$${data.order.amount}</td>
-            <td class="px-6 py-4"><span class="px-2.5 py-1 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">EVENT EMITTED</span></td>
+            <td class="px-6 py-4"><span class="px-2.5 py-1 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">EVENT PUBLISHED</span></td>
           `;
           tbody.prepend(tr);
         }
@@ -273,7 +223,7 @@
         document.getElementById('consoleLog').innerText = "Error: " + err.message;
       } finally {
         submitBtn.disabled = false;
-        submitBtn.innerHTML = `<i class="fa-solid fa-paper-plane"></i><span>Publish Event to RabbitMQ</span>`;
+        submitBtn.innerHTML = `<i class="fa-solid fa-paper-plane"></i><span>Emit to Broker Queue</span>`;
       }
     });
   </script>

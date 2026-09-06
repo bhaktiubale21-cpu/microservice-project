@@ -1,93 +1,100 @@
 const express = require('express');
+const session = require('express-session');
+const path = require('path');
 const amqp = require('amqplib');
 const cors = require('cors');
-const path = require('path');
-const session = require('express-session');
 
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cors());
-
-// Configure Session Support
-app.use(session({
-  secret: 'nexus-secret-key-2026',
-  resave: false,
-  saveUninitialized: true,
-  cookie: { secure: false } // Set to true if serving over HTTPS
-}));
-
-// Serve static files from public directory
-app.use(express.static(path.join(__dirname, 'public')));
+const PORT = 3001;
+const RABBITMQ_URL = process.env.RABBITMQ_URL || 'amqp://localhost';
 
 let channel;
 
-async function connectRabbitMQ() {
-  try {
-    const connection = await amqp.connect(process.env.RABBITMQ_URL || 'amqp://guest:guest@localhost:5672');
-    channel = await connection.createChannel();
-    await channel.assertQueue('order_created');
-    console.log(' Connected to RabbitMQ in Order Service');
-  } catch (error) {
-    console.error('RabbitMQ connection error:', error);
-    setTimeout(connectRabbitMQ, 5000);
-  }
-}
+// Middleware
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-connectRabbitMQ();
+// Session Configuration
+app.use(session({
+  secret: 'nexus_enterprise_secret_key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { maxAge: 3600000 } // 1 hour
+}));
 
-// Auth Middleware to protect dashboard routes
-function requireAuth(req, res, next) {
+// Serve Login Page explicitly
+app.get('/login.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+// Authentication Middleware Guard
+const requireAuth = (req, res, next) => {
   if (req.session && req.session.authenticated) {
     return next();
   }
   return res.redirect('/login.html');
-}
+};
 
-// Authentication API Route
+// Route: Handle Login POST
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
-  
-  // Default demo credentials: admin / admin123
   if (username === 'admin' && password === 'admin123') {
     req.session.authenticated = true;
     req.session.user = username;
-    return res.json({ success: true });
-  } else {
-    return res.status(401).json({ success: false, message: 'Invalid username or password' });
+    return res.json({ success: true, message: 'Authentication successful' });
   }
+  return res.status(401).json({ success: false, message: 'Invalid credentials' });
 });
 
-// Logout Route
+// Route: Handle Logout
 app.get('/logout', (req, res) => {
-  req.session.destroy();
-  res.redirect('/login.html');
+  req.session.destroy(() => {
+    res.redirect('/login.html');
+  });
 });
 
-// Protect Main Operations Hub Route
+// Serve Main Terminal Dashboard (Protected)
 app.get('/', requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Post Orders API (Protected)
+// Serve Static Assets after auth checks
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Connect to RabbitMQ
+async function connectRabbitMQ() {
+  try {
+    const connection = await amqp.connect(RABBITMQ_URL);
+    channel = await connection.createChannel();
+    await channel.assertQueue('order_created', { durable: true });
+    console.log('Connected to RabbitMQ in Order Service');
+  } catch (err) {
+    console.error('RabbitMQ Connection Failed, retrying in 5s...', err.message);
+    setTimeout(connectRabbitMQ, 5000);
+  }
+}
+connectRabbitMQ();
+
+// Route: Publish Order Event
 app.post('/orders', requireAuth, async (req, res) => {
   const { customer, item, amount } = req.body;
   const order = {
-    orderId: 'ORD-' + Math.floor(1000 + Math.random() * 9000),
+    orderId: 'NEX-' + Math.floor(100000 + Math.random() * 900000),
     customer,
     item,
-    amount,
-    status: 'CREATED',
-    timestamp: new Date()
+    amount: Number(amount),
+    timestamp: new Date().toISOString()
   };
 
   if (channel) {
-    channel.sendToQueue('order_created', Buffer.from(JSON.stringify(order)));
-    console.log(' Published Order Event:', order);
-    return res.status(201).json({ message: 'Order created successfully!', order });
+    channel.sendToQueue('order_created', Buffer.from(JSON.stringify(order)), { persistent: true });
+    return res.status(201).json({ message: 'Event dispatched successfully', order });
   } else {
-    return res.status(500).json({ error: 'RabbitMQ connection not ready' });
+    return res.status(503).json({ error: 'RabbitMQ channel unavailable' });
   }
 });
 
-app.listen(3001, () => console.log('Order Service running on port 3001'));
+app.listen(PORT, () => {
+  console.log(`Order Service running on port ${PORT}`);
+});
