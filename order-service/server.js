@@ -10,7 +10,7 @@ const RABBITMQ_URL = process.env.RABBITMQ_URL || 'amqp://localhost';
 
 let channel;
 
-// In-Memory Order Storage (Persists during server runtime)
+// In-Memory Storage (Persists as long as the Docker container is running)
 const ordersDB = [];
 
 // Middleware
@@ -26,7 +26,7 @@ app.use(session({
   cookie: { maxAge: 3600000 } // 1 hour session
 }));
 
-// Route: Serve Login Page
+// Serve Login Page
 app.get('/login.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
@@ -39,7 +39,7 @@ const requireAuth = (req, res, next) => {
   return res.redirect('/login.html');
 };
 
-// Route: Handle Login
+// Route: Login
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
   if (username === 'admin' && password === 'admin123') {
@@ -50,19 +50,19 @@ app.post('/login', (req, res) => {
   return res.status(401).json({ success: false, message: 'Invalid credentials' });
 });
 
-// Route: Handle Logout
+// Route: Logout
 app.get('/logout', (req, res) => {
   req.session.destroy(() => {
     res.redirect('/login.html');
   });
 });
 
-// Route: Fetch All Order History
+// Route: Fetch Order History for System Logs
 app.get('/api/orders', requireAuth, (req, res) => {
   res.json(ordersDB);
 });
 
-// Route: Serve Protected Dashboard
+// Route: Serve Main Dashboard
 app.get('/', requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
@@ -70,7 +70,7 @@ app.get('/', requireAuth, (req, res) => {
 // Serve Static Assets
 app.use(express.static(path.join(__dirname, 'public')));
 
-// RabbitMQ Queue Connection
+// RabbitMQ Connection Setup
 async function connectRabbitMQ() {
   try {
     const connection = await amqp.connect(RABBITMQ_URL);
@@ -95,7 +95,7 @@ app.post('/orders', requireAuth, async (req, res) => {
     timestamp: new Date().toISOString()
   };
 
-  // Push order into server memory
+  // Push order into server memory log
   ordersDB.push(order);
 
   if (channel) {

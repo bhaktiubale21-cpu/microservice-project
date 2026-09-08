@@ -39,7 +39,7 @@
       </nav>
     </div>
 
-    <!-- User Profile Footer -->
+    <!-- Active User Footer -->
     <div class="p-4 border-t border-slate-800 bg-slate-900/50 flex items-center justify-between text-xs">
       <div class="flex items-center space-x-2">
         <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -51,10 +51,10 @@
     </div>
   </aside>
 
-  <!-- Main View Terminal -->
+  <!-- Main View Area -->
   <main class="flex-1 flex flex-col overflow-y-auto bg-slate-950">
     
-    <!-- Top Header Bar -->
+    <!-- Header -->
     <header class="bg-slate-900/80 backdrop-blur border-b border-slate-800 px-8 py-4 flex items-center justify-between sticky top-0 z-10">
       <div>
         <h2 id="section-title" class="text-xl font-bold text-white tracking-tight">Operations Control Terminal</h2>
@@ -71,22 +71,22 @@
       <!-- SECTION 1: OPERATIONS CONTROL -->
       <div id="section-operations-view" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        <!-- Order Form -->
+        <!-- Order Entry Form with Blank Placeholders -->
         <div class="bg-slate-900/60 p-6 rounded-xl border border-slate-800 shadow-xl space-y-4">
           <h3 class="font-bold text-xs uppercase tracking-wider text-indigo-400 border-b border-slate-800 pb-3">Publish Event Payload</h3>
           
           <form id="orderForm" class="space-y-4">
             <div>
-              <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Customer Identifier</label>
-              <input type="text" id="client" required value="Bob" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-white outline-none focus:border-indigo-500">
+              <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Customer Name</label>
+              <input type="text" id="client" required placeholder="Enter customer name (e.g. Bob)" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-white outline-none focus:border-indigo-500">
             </div>
             <div>
-              <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Cargo Item Specification</label>
-              <input type="text" id="item" required value="Smartphone" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-white outline-none focus:border-indigo-500">
+              <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Item Specification</label>
+              <input type="text" id="item" required placeholder="Enter item name (e.g. Smartphone)" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-white outline-none focus:border-indigo-500">
             </div>
             <div>
-              <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Total Valuation ($ USD)</label>
-              <input type="number" id="amount" required value="800" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-white outline-none focus:border-indigo-500">
+              <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Amount ($ USD)</label>
+              <input type="number" id="amount" required placeholder="Enter amount (e.g. 800)" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-white outline-none focus:border-indigo-500">
             </div>
             <button type="submit" id="submitBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-lg text-xs transition shadow-lg shadow-indigo-600/30 flex items-center justify-center space-x-2">
               <i class="fa-solid fa-paper-plane"></i><span>Emit to Broker Queue</span>
@@ -232,6 +232,9 @@
         const data = await res.json();
 
         document.getElementById('consoleLog').innerText = JSON.stringify(data, null, 2);
+
+        // Reset inputs to blank after successfully dispatching
+        document.getElementById('orderForm').reset();
       } catch (err) {
         document.getElementById('consoleLog').innerText = "Error: " + err.message;
       } finally {
@@ -240,7 +243,7 @@
       }
     });
 
-    // Auto load order history on page load
+    // Initial load
     loadOrderHistory();
   </script>
 </body>
