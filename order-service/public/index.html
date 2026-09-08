@@ -9,7 +9,7 @@
 </head>
 <body class="bg-slate-950 font-sans text-slate-200 antialiased flex h-screen overflow-hidden">
 
-  <!-- Sidebar Section Navigation -->
+  <!-- Sidebar Navigation -->
   <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between shrink-0">
     <div>
       <div class="p-5 border-b border-slate-800 flex items-center space-x-3">
@@ -22,7 +22,7 @@
         </div>
       </div>
 
-      <!-- Section Selectors -->
+      <!-- Navigation Tabs -->
       <nav class="p-3 space-y-1 text-xs font-semibold mt-2">
         <button onclick="selectSection('operations')" id="btn-operations" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg bg-indigo-600 text-white shadow-md shadow-indigo-600/20">
           <i class="fa-solid fa-sliders w-5 text-center"></i><span>Operations Control</span>
@@ -39,7 +39,7 @@
       </nav>
     </div>
 
-    <!-- Active Session Info -->
+    <!-- User Profile Footer -->
     <div class="p-4 border-t border-slate-800 bg-slate-900/50 flex items-center justify-between text-xs">
       <div class="flex items-center space-x-2">
         <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -51,10 +51,10 @@
     </div>
   </aside>
 
-  <!-- Main View Area -->
+  <!-- Main View Terminal -->
   <main class="flex-1 flex flex-col overflow-y-auto bg-slate-950">
     
-    <!-- Header -->
+    <!-- Top Header Bar -->
     <header class="bg-slate-900/80 backdrop-blur border-b border-slate-800 px-8 py-4 flex items-center justify-between sticky top-0 z-10">
       <div>
         <h2 id="section-title" class="text-xl font-bold text-white tracking-tight">Operations Control Terminal</h2>
@@ -71,22 +71,22 @@
       <!-- SECTION 1: OPERATIONS CONTROL -->
       <div id="section-operations-view" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        <!-- Input Form -->
+        <!-- Order Form -->
         <div class="bg-slate-900/60 p-6 rounded-xl border border-slate-800 shadow-xl space-y-4">
           <h3 class="font-bold text-xs uppercase tracking-wider text-indigo-400 border-b border-slate-800 pb-3">Publish Event Payload</h3>
           
           <form id="orderForm" class="space-y-4">
             <div>
               <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Customer Identifier</label>
-              <input type="text" id="client" required value="Acme Logistics Corp" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-white outline-none focus:border-indigo-500">
+              <input type="text" id="client" required value="Bob" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-white outline-none focus:border-indigo-500">
             </div>
             <div>
               <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Cargo Item Specification</label>
-              <input type="text" id="item" required value="Industrial Router Node X" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-white outline-none focus:border-indigo-500">
+              <input type="text" id="item" required value="Smartphone" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-white outline-none focus:border-indigo-500">
             </div>
             <div>
               <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Total Valuation ($ USD)</label>
-              <input type="number" id="amount" required value="1250" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-white outline-none focus:border-indigo-500">
+              <input type="number" id="amount" required value="800" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-white outline-none focus:border-indigo-500">
             </div>
             <button type="submit" id="submitBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-lg text-xs transition shadow-lg shadow-indigo-600/30 flex items-center justify-center space-x-2">
               <i class="fa-solid fa-paper-plane"></i><span>Emit to Broker Queue</span>
@@ -94,7 +94,7 @@
           </form>
         </div>
 
-        <!-- Terminal Output Log -->
+        <!-- Terminal Output -->
         <div class="lg:col-span-2 bg-slate-950 p-6 rounded-xl border border-slate-800 shadow-xl flex flex-col justify-between font-mono">
           <div>
             <div class="flex items-center justify-between border-b border-slate-800 pb-3">
@@ -141,7 +141,7 @@
           </thead>
           <tbody id="logsTable" class="divide-y divide-slate-800/60 font-mono text-slate-300">
             <tr>
-              <td colspan="5" class="px-6 py-8 text-center text-slate-500 font-sans">No records processed during this active session.</td>
+              <td colspan="5" class="px-6 py-8 text-center text-slate-500 font-sans">Loading system history...</td>
             </tr>
           </tbody>
         </table>
@@ -158,8 +158,6 @@
   </main>
 
   <script>
-    let logCount = 0;
-
     function selectSection(section) {
       const sections = ['operations', 'telemetry', 'logs', 'settings'];
       sections.forEach(s => {
@@ -179,6 +177,38 @@
 
       document.getElementById('section-title').innerText = headers[section][0];
       document.getElementById('section-subtitle').innerText = headers[section][1];
+
+      if (section === 'logs') {
+        loadOrderHistory();
+      }
+    }
+
+    async function loadOrderHistory() {
+      try {
+        const res = await fetch('/api/orders');
+        const history = await res.json();
+        const tbody = document.getElementById('logsTable');
+
+        if (history.length > 0) {
+          tbody.innerHTML = '';
+          history.slice().reverse().forEach(order => {
+            const tr = document.createElement('tr');
+            tr.className = "hover:bg-slate-800/40 transition";
+            tr.innerHTML = `
+              <td class="px-6 py-4 font-bold text-indigo-400">${order.orderId}</td>
+              <td class="px-6 py-4 font-semibold text-slate-200">${order.customer}</td>
+              <td class="px-6 py-4 text-slate-400">${order.item}</td>
+              <td class="px-6 py-4 font-bold text-emerald-400">$${order.amount}</td>
+              <td class="px-6 py-4"><span class="px-2.5 py-1 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">EVENT PUBLISHED</span></td>
+            `;
+            tbody.appendChild(tr);
+          });
+        } else {
+          tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-slate-500 font-sans">No records processed during this active session.</td></tr>`;
+        }
+      } catch (err) {
+        console.error("Failed to load history:", err);
+      }
     }
 
     document.getElementById('orderForm').addEventListener('submit', async (e) => {
@@ -202,23 +232,6 @@
         const data = await res.json();
 
         document.getElementById('consoleLog').innerText = JSON.stringify(data, null, 2);
-
-        if (res.ok && data.order) {
-          logCount++;
-          const tbody = document.getElementById('logsTable');
-          if (logCount === 1) tbody.innerHTML = '';
-
-          const tr = document.createElement('tr');
-          tr.className = "hover:bg-slate-800/40 transition";
-          tr.innerHTML = `
-            <td class="px-6 py-4 font-bold text-indigo-400">${data.order.orderId}</td>
-            <td class="px-6 py-4 font-semibold text-slate-200">${data.order.customer}</td>
-            <td class="px-6 py-4 text-slate-400">${data.order.item}</td>
-            <td class="px-6 py-4 font-bold text-emerald-400">$${data.order.amount}</td>
-            <td class="px-6 py-4"><span class="px-2.5 py-1 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">EVENT PUBLISHED</span></td>
-          `;
-          tbody.prepend(tr);
-        }
       } catch (err) {
         document.getElementById('consoleLog').innerText = "Error: " + err.message;
       } finally {
@@ -226,6 +239,9 @@
         submitBtn.innerHTML = `<i class="fa-solid fa-paper-plane"></i><span>Emit to Broker Queue</span>`;
       }
     });
+
+    // Auto load order history on page load
+    loadOrderHistory();
   </script>
 </body>
 </html>

@@ -10,6 +10,9 @@ const RABBITMQ_URL = process.env.RABBITMQ_URL || 'amqp://localhost';
 
 let channel;
 
+// In-Memory Order Storage (Persists during server runtime)
+const ordersDB = [];
+
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -20,15 +23,15 @@ app.use(session({
   secret: 'nexus_enterprise_secret_key',
   resave: false,
   saveUninitialized: false,
-  cookie: { maxAge: 3600000 } // 1 hour
+  cookie: { maxAge: 3600000 } // 1 hour session
 }));
 
-// Serve Login Page explicitly
+// Route: Serve Login Page
 app.get('/login.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
-// Authentication Middleware Guard
+// Authentication Guard Middleware
 const requireAuth = (req, res, next) => {
   if (req.session && req.session.authenticated) {
     return next();
@@ -36,7 +39,7 @@ const requireAuth = (req, res, next) => {
   return res.redirect('/login.html');
 };
 
-// Route: Handle Login POST
+// Route: Handle Login
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
   if (username === 'admin' && password === 'admin123') {
@@ -54,15 +57,20 @@ app.get('/logout', (req, res) => {
   });
 });
 
-// Serve Main Terminal Dashboard (Protected)
+// Route: Fetch All Order History
+app.get('/api/orders', requireAuth, (req, res) => {
+  res.json(ordersDB);
+});
+
+// Route: Serve Protected Dashboard
 app.get('/', requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Serve Static Assets after auth checks
+// Serve Static Assets
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Connect to RabbitMQ
+// RabbitMQ Queue Connection
 async function connectRabbitMQ() {
   try {
     const connection = await amqp.connect(RABBITMQ_URL);
@@ -76,7 +84,7 @@ async function connectRabbitMQ() {
 }
 connectRabbitMQ();
 
-// Route: Publish Order Event
+// Route: Dispatch Order Event
 app.post('/orders', requireAuth, async (req, res) => {
   const { customer, item, amount } = req.body;
   const order = {
@@ -86,6 +94,9 @@ app.post('/orders', requireAuth, async (req, res) => {
     amount: Number(amount),
     timestamp: new Date().toISOString()
   };
+
+  // Push order into server memory
+  ordersDB.push(order);
 
   if (channel) {
     channel.sendToQueue('order_created', Buffer.from(JSON.stringify(order)), { persistent: true });
